@@ -1,1 +1,5 @@
 *.sln
+Gladiator/.vs
+Gladiator/Debug
+Gladiator/Gladiator/Debug
+Gladiator/Gladiator/Gladiator*
