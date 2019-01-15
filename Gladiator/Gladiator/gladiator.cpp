@@ -1,7 +1,20 @@
 #include <iostream>
+#include <stdio.h>
+#include "logs.h"
+#include "gamemachine.h"
 #include <SFML/Graphics.hpp>
 
 int main() {
+
+	LOG_INFO(1, "Startup is done!");
+
+	GameMachine gameMachine;
+	while (true) {
+		gameMachine.run();
+	}
+	return 0;
+}
+	/*
 	{
 		sf::RenderWindow window(sf::VideoMode(200, 200), "SFML works!!");
 		sf::CircleShape shape(100.f);
@@ -23,4 +36,4 @@ int main() {
 
 		return 0;
 	}
-}
+	*/
