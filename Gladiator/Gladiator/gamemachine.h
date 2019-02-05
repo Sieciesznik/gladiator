@@ -1,6 +1,7 @@
 #pragma once
 #include "logs.h"
 #include <SFML/Graphics.hpp>
+#include <iostream>
 
 class GameMachine
 {
@@ -8,7 +9,8 @@ class GameMachine
 
 public:
 	sf::RenderWindow window;
-	GameMachine();
+	GameMachine() {};
+	
 	void setCurrent(State* s) {
 
 		current = s;
@@ -18,7 +20,7 @@ public:
 	void setToMenu();
 	void setToEditor();
 	void run();
-
+	
 };
 
 class State
@@ -62,7 +64,6 @@ public:
 		isRunning = false;
 	}
 
-
 };
 
 class WelcomeScreenState : public State
@@ -74,11 +75,47 @@ public:
 	void run();
 };
 
-/* To uncomment in later development
+void GameMachine::run() {
+
+	WelcomeScreenState welcomeState(this);
+
+	welcomeState.run();
+
+}
+
+void WelcomeScreenState::run() {
+	
+	sf::RenderWindow window(sf::VideoMode(1920, 1080), "SFML works!!");
+
+	sf::Texture texture;
+	if (!texture.loadFromFile("Images/welcome_screen.png"))
+	{
+		LOG_ERROR("Can't load the file!");
+	}
+	sf::Sprite WelcomeScreen;
+	WelcomeScreen.setTexture(texture);
+	while (window.isOpen())
+	{
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed)
+				window.close();
+		}
+
+		window.clear();
+		window.draw(WelcomeScreen);
+		window.display();
+	}
+}
+
+
+/*
 class Game {
 public:
 	explicit Game(sf::RenderTarget &window);
 };
+
 class GameState : public State
 {
 public:
