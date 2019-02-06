@@ -13,60 +13,44 @@ void WelcomeScreenState::run() {
 
 	isRunning = true;
 
-	sf::Time stopTime;
-	sf::Time targetTime = sf::milliseconds(1000 / 60);
-	sf::Clock clock;
+	sf::RenderWindow window(sf::VideoMode(1900, 1000), "SFML works!!");
+	sf::Texture texture;
+	sf::Event event;
+	sf::Sprite WelcomeScreen;
+	sf::String nickName;
+	sf::Font font;
+	font.loadFromFile("arial.ttf");
+	sf::Text playerText(nickName, font, 50);
+	playerText.setPosition(450, 550);
+	playerText.setColor(sf::Color::White);
 
-	sf::Texture backgroundTexture;
-
-	sf::Sprite backgroundSprite;
-
-
-	if (!backgroundTexture.loadFromFile("wololo.jpg"))
+	if (!texture.loadFromFile("Images/welcome_screen.png"))
 	{
-		LOG_ERROR("Loading menu image error! Forgot of something?");
-		getchar();
-		return;
+		LOG_ERROR("Can't load the file!");
 	}
-	backgroundSprite.setTexture(backgroundTexture);
-	
-	while (gameMachine->window.isOpen() && isRunning)
+
+	WelcomeScreen.setTexture(texture);
+
+	while (window.isOpen())
 	{
-
-		clock.restart();
-		//===========================================================================================================================
-		sf::Event event;
-
-		while (gameMachine->window.pollEvent(event))
+		while (window.pollEvent(event))
 		{
-			switch (event.type)
+			if (event.type == sf::Event::Closed)
+				window.close();
+			if (event.type == sf::Event::TextEntered)
 			{
-
-			case sf::Event::Closed:
-				gameMachine->window.close();
-				std::exit(0);
-				break;
-
-			case sf::Event::KeyPressed:
-				setTransition('p');
-				break;
-
-			default:
-				break;
+				if (event.text.unicode >= 32 && event.text.unicode <= 126 && nickName.getSize() < 20)
+					nickName += (char)event.text.unicode;
+				else if (event.text.unicode == 8 && nickName.getSize() > 0)
+					nickName.erase(nickName.getSize() - 1, nickName.getSize());
+				playerText.setString(nickName);
 			}
 		}
-
-
-		gameMachine->window.draw(backgroundSprite);
-
-		gameMachine->window.display();
-
-
-		//===========================================================================================================================
-		stopTime = clock.getElapsedTime();
-		sf::sleep(targetTime - stopTime);
+		window.clear();
+		window.draw(WelcomeScreen);
+		window.draw(playerText);
+		window.display();
 	}
-
 	switch (nextState)
 	{
 	case '0':

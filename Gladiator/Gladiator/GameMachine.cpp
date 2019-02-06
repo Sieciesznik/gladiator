@@ -6,6 +6,8 @@ GameMachine::GameMachine() : window(sf::VideoMode(1216, 704), "Labyrinth game") 
 
 	current = new WelcomeScreenState(this);
 
+	current->run();
+
 };
 
 
