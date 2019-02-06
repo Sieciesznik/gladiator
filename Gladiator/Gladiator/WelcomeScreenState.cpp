@@ -13,7 +13,6 @@ void WelcomeScreenState::run() {
 
 	isRunning = true;
 
-	sf::RenderWindow window(sf::VideoMode(1900, 1000), "SFML works!!");
 	sf::Texture texture;
 	sf::Event event;
 	sf::Sprite WelcomeScreen;
@@ -22,7 +21,7 @@ void WelcomeScreenState::run() {
 	font.loadFromFile("arial.ttf");
 	sf::Text playerText(nickName, font, 50);
 	playerText.setPosition(450, 550);
-	playerText.setColor(sf::Color::White);
+	playerText.setFillColor(sf::Color::White);
 
 	if (!texture.loadFromFile("Images/welcome_screen.png"))
 	{
@@ -31,12 +30,14 @@ void WelcomeScreenState::run() {
 
 	WelcomeScreen.setTexture(texture);
 
-	while (window.isOpen())
+	while (gameMachine->window.isOpen())
 	{
-		while (window.pollEvent(event))
+		while (gameMachine->window.pollEvent(event))
 		{
-			if (event.type == sf::Event::Closed)
-				window.close();
+			if (event.type == sf::Event::Closed) {
+				gameMachine->window.close();
+				exit(0);
+			}
 			if (event.type == sf::Event::TextEntered)
 			{
 				if (event.text.unicode >= 32 && event.text.unicode <= 126 && nickName.getSize() < 20)
@@ -46,10 +47,10 @@ void WelcomeScreenState::run() {
 				playerText.setString(nickName);
 			}
 		}
-		window.clear();
-		window.draw(WelcomeScreen);
-		window.draw(playerText);
-		window.display();
+		gameMachine->window.clear();
+		gameMachine->window.draw(WelcomeScreen);
+		gameMachine->window.draw(playerText);
+		gameMachine->window.display();
 	}
 	switch (nextState)
 	{

@@ -12,9 +12,9 @@ int main() {
 	
 	GameMachine gameMachine;
 	
-	//while (true) {
+	while (true) {
 		gameMachine.run();
-	//}
+	}
 	return 0;
 }
 	/*

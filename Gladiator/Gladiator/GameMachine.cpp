@@ -2,7 +2,7 @@
 #include "gamemachine.h"
 
 
-GameMachine::GameMachine() : window(sf::VideoMode(1216, 704), "Labyrinth game") {
+GameMachine::GameMachine() : window(sf::VideoMode(1900, 1000), "Labyrinth game") {
 
 	current = new WelcomeScreenState(this);
 
