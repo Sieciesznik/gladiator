@@ -71,14 +71,14 @@ class WelcomeScreenState : public State
 public:
 	WelcomeScreenState(GameMachine* gm) : State(gm) {}
 
-	//void setToGame();
+	void setToGame();
 	void run();
 };
 
-/*
+
 class Game {
 public:
-	explicit Game(sf::RenderTarget &window);
+	explicit Game(sf::RenderTarget &window) {};
 };
 
 class GameState : public State
@@ -91,10 +91,10 @@ public:
 
 	void setToMenu();
 	void prepareMap();
-	void prepareHero();
+	void prepareHero(sf::Texture*, sf::Sprite*);
 	void run();
 };
-
+/*
 class MenuState : public State
 {
 public:

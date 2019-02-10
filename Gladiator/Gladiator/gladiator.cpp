@@ -37,10 +37,10 @@ int main() {
 	while (true) {
 
 		client = WebSocket::from_url("ws://arena.ympek.net:8020");
-		assert(client);
-		client->send("hello");
-		client->poll();
-		client->dispatch(handle_message);
+		//assert(client);
+		//client->send("hello");
+		//client->poll();
+		//client->dispatch(handle_message);
 		LOG_INFO(1, "Websocket is connected!");
 
 		gameMachine.run();
