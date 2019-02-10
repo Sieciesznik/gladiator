@@ -4,17 +4,50 @@
 #include "gamemachine.h"
 #include <SFML/Graphics.hpp>
 
+#include "easywsclient.hpp"
+#include <cassert>
+#include <WinSock2.h>
+
 using namespace std;
+using easywsclient::WebSocket;
+static WebSocket::pointer client = NULL;
+
+
+void handle_message(const std::string & message)
+{
+	printf(">>> %s\n", message.c_str());
+	if (message == "world") { client->close(); }
+}
 
 int main() {
 
 	LOG_INFO(1, "Startup is done!");
 	
 	GameMachine gameMachine;
-	
+
+	INT rc;
+	WSADATA wsaData;
+
+	rc = WSAStartup(MAKEWORD(2, 2), &wsaData);
+	if (rc) {
+		printf("WSAStartup Failed.\n");
+		return 1;
+	}
+
 	while (true) {
+
+		client = WebSocket::from_url("ws://arena.ympek.net:8020");
+		assert(client);
+		client->send("hello");
+		client->poll();
+		client->dispatch(handle_message);
+		LOG_INFO(1, "Websocket is connected!");
+
 		gameMachine.run();
 	}
+
+	WSACleanup();
+
 	return 0;
 }
 	/*
