@@ -1,5 +1,6 @@
 #pragma once
 #include "logs.h"
+#include "systems.h"
 #include <SFML/Graphics.hpp>
 #include <iostream>
 
@@ -8,8 +9,12 @@ class GameMachine
 	class State* current;
 
 public:
-	sf::RenderWindow window;
-	GameMachine();
+
+	class ResourceManager* resManager;
+	class ServerSystem* serverSys;
+	class RenderSystem* renderSys;
+	class InputSystem* inputSys;
+	GameMachine(ResourceManager* resManager);
 	
 	void setCurrent(State* s) {
 
@@ -20,7 +25,8 @@ public:
 	void setToMenu();
 	void setToEditor();
 	void run();
-	
+	void initiateSystems();
+	void updateSystems();
 };
 
 class State
@@ -75,23 +81,15 @@ public:
 	void run();
 };
 
-
-class Game {
-public:
-	explicit Game(sf::RenderTarget &window) {};
-};
-
 class GameState : public State
 {
 public:
 
-	Game game;
-
-	GameState(GameMachine* gm) : State(gm), game(gm->window) {}
+	GameState(GameMachine* gm) : State(gm) {}
 
 	void setToMenu();
 	void prepareMap();
-	void prepareHero(sf::Texture*, sf::Sprite*);
+	void prepareHero();
 	void run();
 };
 /*

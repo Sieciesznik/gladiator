@@ -1,10 +1,14 @@
 #include <stdio.h>
 #include "gamemachine.h"
 
-GameMachine::GameMachine() : window(sf::VideoMode(1900, 1000), "Labyrinth game") {
-	
-	current = new WelcomeScreenState(this);
+GameMachine::GameMachine(ResourceManager* rm)
+{
+	resManager = rm;
+	serverSys = new ServerSystem(rm);
+	inputSys = new InputSystem(rm);
+	renderSys = new RenderSystem(rm);
 
+	current = new WelcomeScreenState(this);
 };
 
 
@@ -19,4 +23,14 @@ void GameMachine::setToEditor() {
 }
 void GameMachine::run() {
 	current->run();
+}
+void GameMachine::initiateSystems() {
+	serverSys->init();
+	inputSys->init();
+	renderSys->init();
+}
+void GameMachine::updateSystems() {
+	serverSys->update();
+	inputSys->update();
+	renderSys->update();
 }

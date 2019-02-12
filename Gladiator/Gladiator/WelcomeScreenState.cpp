@@ -12,7 +12,7 @@ bool isSpriteClicked(sf::Sprite *spr, sf::RenderWindow *window)
 	sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
 	if (spr->getGlobalBounds().contains(mousePosF))
 	{
-		std::cout << "Clicked, yay!" << std::endl;
+		LOG_INFO(1, "Clicked, yay!");
 		return true;
 	}
 	else
@@ -44,14 +44,14 @@ void WelcomeScreenState::run() {
 	PlayButton.setTexture(ButtonTexture);
 	PlayButton.setPosition(850, 700);
 
-	while (gameMachine->window.isOpen())
+	while (gameMachine->resManager->window.isOpen() && isRunning)
 	{	
 
-		while (gameMachine->window.pollEvent(event))
+		while (gameMachine->resManager->window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed) {
-				gameMachine->window.close();
-				exit(0);
+				nextState = '0';
+				isRunning = false;
 			}
 			if (event.type == sf::Event::TextEntered)
 			{
@@ -63,18 +63,18 @@ void WelcomeScreenState::run() {
 			}
 			if(event.type == sf::Event::MouseButtonPressed)
 			{
-				if (isSpriteClicked(&PlayButton, &gameMachine->window)) 
+				if (isSpriteClicked(&PlayButton, &gameMachine->resManager->window)) 
 				{
-					WelcomeScreenState::setToGame();
-					gameMachine->run();
+					nextState = 'p';
+					isRunning = false;
 				}
 			}
 		}
-		gameMachine->window.clear();
-		gameMachine->window.draw(WelcomeScreen);
-		gameMachine->window.draw(PlayButton);
-		gameMachine->window.draw(playerText);
-		gameMachine->window.display();
+		gameMachine->resManager->window.clear();
+		gameMachine->resManager->window.draw(WelcomeScreen);
+		gameMachine->resManager->window.draw(PlayButton);
+		gameMachine->resManager->window.draw(playerText);
+		gameMachine->resManager->window.display();
 	}
 	switch (nextState)
 	{
