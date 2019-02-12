@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include "gamemachine.h"
-#include <math.h>
+#include <nlohmann/json.hpp>
 
+using json = nlohmann::json;
 
 void GameState::setToMenu() {
 
@@ -24,9 +25,17 @@ void GameState::run() {
 	this->prepareMap();
 	this->prepareHero();
 
+	sf::Time stopTime;
+	sf::Time targetTime = sf::milliseconds(1000 / 60);
+	sf::Clock clock;
 	
 	while (gameMachine->resManager->window.isOpen() && isRunning)
 	{
+		clock.restart();
+
 		gameMachine->updateSystems();
+
+		stopTime = clock.getElapsedTime();
+		sf::sleep(targetTime - stopTime);
 	}
 }
