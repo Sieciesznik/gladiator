@@ -97,7 +97,7 @@ void RenderSystem::tearDown()
 void RenderSystem::lookAtMouse()
 {
 	sf::Vector2f spritePos = playerSprite.getPosition();
-	sf::Vector2i mousePos = sf::Mouse::getPosition(resManager->window) + sf::Vector2i(50, 50);
+	sf::Vector2f mousePos = resManager->window.mapPixelToCoords(sf::Mouse::getPosition(resManager->window)) + sf::Vector2f(50, 50);
 
 	// now we have both the sprite position and the cursor
 	// position lets do the calculation so our sprite will
@@ -113,9 +113,10 @@ void RenderSystem::lookAtMouse()
 
 void RenderSystem::updateHero()
 {
-	playerSprite.move(resManager->dx, resManager->dy);
 	cameraView.setCenter(playerSprite.getPosition());
 	resManager->window.setView(cameraView);
+	playerSprite.move(resManager->dx, resManager->dy);
+	
 }
 
 //=========================================================
