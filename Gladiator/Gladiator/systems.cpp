@@ -1,6 +1,8 @@
 #include "systems.h"
 
-ResourceManager::ResourceManager() : window(sf::VideoMode(1900, 1000), "Labyrinth game"), dx(0), dy(0) {}
+const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000;
+
+ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Labyrinth game"), dx(0), dy(0) {}
 
 //=========================================================
 //					Server System
@@ -59,14 +61,22 @@ RenderSystem::RenderSystem(ResourceManager* rm)
 
 void RenderSystem::init() 
 {
-	if (!playerTexture.loadFromFile("Images/NoClass.png"))
+	
+	if (!playerTexture.loadFromFile("Images/NoClass.png") || !mapTexture.loadFromFile("Images/floor.jpg"))
 	{
 		LOG_ERROR("Can't load the file!");
 	}
+	mapTexture.setRepeated(true);
+	mapSprite.setTexture(mapTexture);
+	mapSprite.setTextureRect(sf::IntRect(0, 0, GAME_WIDTH*10, GAME_HEIGHT*10));
+	mapSprite.setPosition(-GAME_WIDTH * 2,-GAME_WIDTH * 2);
 
 	playerSprite.setTexture(playerTexture);
-	playerSprite.setPosition(600, 600);
+	playerSprite.setPosition(GAME_WIDTH/2, GAME_HEIGHT/2);
 	playerSprite.setOrigin(50, 50);
+	
+	cameraView.setCenter(playerSprite.getPosition());
+	cameraView.setSize(sf::Vector2f(GAME_WIDTH, GAME_HEIGHT));
 }
 
 void RenderSystem::update()
@@ -74,6 +84,7 @@ void RenderSystem::update()
 	lookAtMouse();
 	updateHero();
 	resManager->window.clear();
+	resManager->window.draw(mapSprite);
 	resManager->window.draw(playerSprite);
 	resManager->window.display();
 }
@@ -103,6 +114,8 @@ void RenderSystem::lookAtMouse()
 void RenderSystem::updateHero()
 {
 	playerSprite.move(resManager->dx, resManager->dy);
+	cameraView.setCenter(playerSprite.getPosition());
+	resManager->window.setView(cameraView);
 }
 
 //=========================================================

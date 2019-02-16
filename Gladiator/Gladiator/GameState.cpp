@@ -4,6 +4,7 @@
 
 using json = nlohmann::json;
 
+
 void GameState::setToMenu() {
 
 	//gameMachine->setCurrent(new MenuState(this->gameMachine));
@@ -11,6 +12,7 @@ void GameState::setToMenu() {
 }
 
 void GameState::prepareMap() {
+
 }
 
 void GameState::prepareHero() {
@@ -19,10 +21,10 @@ void GameState::prepareHero() {
 void GameState::run() {
 
 	isRunning = true;
-
 	
 
 	this->prepareMap();
+	
 	this->prepareHero();
 
 	sf::Time stopTime;

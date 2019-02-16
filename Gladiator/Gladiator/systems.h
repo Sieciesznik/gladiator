@@ -42,8 +42,9 @@ class RenderSystem : public System
 {
 public:
 
-	sf::Texture playerTexture;
-	sf::Sprite playerSprite;
+	sf::View cameraView;
+	sf::Texture playerTexture, mapTexture;
+	sf::Sprite playerSprite, mapSprite;
 
 	RenderSystem(ResourceManager* rm);
 	void init();
