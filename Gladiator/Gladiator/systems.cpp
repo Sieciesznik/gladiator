@@ -11,9 +11,12 @@ ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGH
 //=========================================================
 
 static WebSocket::pointer client;
+static ProtocolDecoder decoder;
+static ProtocolEncoder encoder;
 
 static void handleMessage(const std::string & message)
 {
+	//decoder.decode(message.c_str());
 	printf(">>> %s\n", message.c_str());
 	if (message == "world") { client->close(); }
 }
@@ -46,6 +49,11 @@ void ServerSystem::init()
 		protocolFile.close();
 
 
+		json protocol = json::parse(buffer);
+		std::cout << protocol["clientToServerMessage"]["messageTypes"][0];
+		json* s2cMsgTypes = new json();
+		s2cMsgTypes->array();
+		//decoder.set();
 	}
 
 }

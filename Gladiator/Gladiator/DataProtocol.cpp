@@ -106,16 +106,36 @@ void MessageData::addParameter(std::string fieldName, std::string fieldVal)
 	parameters[fieldName] = new MessageFieldString(fieldName, fieldVal);
 }
 
-ProtocolDecoder::ProtocolDecoder(json s2cMsgTypes)
+int32_t MessageData::getIntParameter(std::string key)
 {
-	this->serverToClientMessageTypes = s2cMsgTypes;
-
-
+	return parameters[key]->getIntValue();
 }
 
-ProtocolEncoder::ProtocolEncoder(json c2sMsgTypes)
+double_t MessageData::getDoubleParameter(std::string key)
 {
-	this->clientToServerMessageTypes = c2sMsgTypes;
+	return parameters[key]->getDoubleValue();
+}
+
+std::string MessageData::getStringParameter(std::string key)
+{
+	return parameters[key]->getStringValue();
+}
+
+ProtocolDecoder::ProtocolDecoder(){}
+
+void ProtocolDecoder::set(json* s2cMsgType)
+{
+	this->serverToClientMessageTypes = s2cMsgType;
+}
+
+//MessageData ProtocolDecoder::decode(const char * byteBuffer)
+//{
+
+//}
+
+ProtocolEncoder::ProtocolEncoder()//json c2sMsgTypes)
+{
+	//this->clientToServerMessageTypes = c2sMsgTypes;
 
 
 }

@@ -65,17 +65,21 @@ public:
 	void addParameter(std::string fieldName, int32_t fieldVal);
 	void addParameter(std::string fieldName, double_t fieldVal);
 	void addParameter(std::string fieldName, std::string fieldVal);
+	int32_t getIntParameter(std::string key);
+	double_t getDoubleParameter(std::string key);
+	std::string getStringParameter(std::string key);
 };
 
 
 class ProtocolDecoder {
 
 	uint8_t messageIdSize;
-	json	serverToClientMessageTypes;
+	json*	serverToClientMessageTypes;
 
 public:
-	ProtocolDecoder(json s2cMsgTypes);
-
+	ProtocolDecoder();
+	void set(json * s2cMsgType);
+	//MessageData decode(const char * byteBuffer);
 };
 
 class ProtocolEncoder {
@@ -84,6 +88,6 @@ class ProtocolEncoder {
 	json	clientToServerMessageTypes;
 
 public:
-	ProtocolEncoder(json c2sMsgTypes);
+	ProtocolEncoder();//json c2sMsgTypes);
 
 };
