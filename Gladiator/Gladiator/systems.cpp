@@ -62,10 +62,21 @@ RenderSystem::RenderSystem(ResourceManager* rm)
 void RenderSystem::init() 
 {
 	
-	if (!playerTexture.loadFromFile("Images/NoClass.png") || !mapTexture.loadFromFile("Images/floor.jpg"))
+	if (!playerTexture.loadFromFile("Images/NoClass.png") || !mapTexture.loadFromFile("Images/floor.jpg") || !swordTexture.loadFromFile("Images/sword.png"))
 	{
 		LOG_ERROR("Can't load the file!");
 	}
+	font.loadFromFile("arial.ttf");
+	health.setFont(font);
+	health.setStyle(sf::Text::Bold);
+	health.setString("100 HP");
+	health.setFillColor(sf::Color::Black);
+
+	healthbarBackground.setSize(sf::Vector2f(624, 54));
+	healthbarBackground.setFillColor(sf::Color::Black);
+	healthbar.setSize(sf::Vector2f(620, 50));
+	healthbar.setFillColor(sf::Color::Green);
+
 	mapTexture.setRepeated(true);
 	mapSprite.setTexture(mapTexture);
 	mapSprite.setTextureRect(sf::IntRect(0, 0, GAME_WIDTH*10, GAME_HEIGHT*10));
@@ -74,6 +85,9 @@ void RenderSystem::init()
 	playerSprite.setTexture(playerTexture);
 	playerSprite.setPosition(GAME_WIDTH/2, GAME_HEIGHT/2);
 	playerSprite.setOrigin(50, 50);
+
+	swordSprite.setTexture(swordTexture);
+	swordSprite.setPosition((GAME_WIDTH / 2)+30, (GAME_HEIGHT / 2)+30);
 	
 	cameraView.setCenter(playerSprite.getPosition());
 	cameraView.setSize(sf::Vector2f(GAME_WIDTH, GAME_HEIGHT));
@@ -85,6 +99,10 @@ void RenderSystem::update()
 	updateHero();
 	resManager->window.clear();
 	resManager->window.draw(mapSprite);
+	resManager->window.draw(swordSprite);
+	resManager->window.draw(healthbarBackground);
+	resManager->window.draw(healthbar);
+	resManager->window.draw(health);
 	resManager->window.draw(playerSprite);
 	resManager->window.display();
 }
@@ -92,6 +110,21 @@ void RenderSystem::update()
 void RenderSystem::tearDown()
 {
 
+}
+
+bool isOnSprite(sf::Sprite *heroSprite, sf::Sprite *itemSprite)
+{
+	sf::Vector2f heroSpritePos = heroSprite->getPosition();
+	sf::Vector2f itemSpritePos = sf::Vector2f(itemSprite->getPosition().x, itemSprite->getPosition().y);
+	if (itemSprite->getGlobalBounds().contains(heroSpritePos))
+	{
+		LOG_INFO(1, "IS ON SPRITE!");
+		return true;
+	}
+	else
+	{
+		return false;
+	}
 }
 
 void RenderSystem::lookAtMouse()
@@ -114,8 +147,13 @@ void RenderSystem::lookAtMouse()
 void RenderSystem::updateHero()
 {
 	cameraView.setCenter(playerSprite.getPosition());
+	healthbarBackground.setPosition(playerSprite.getPosition() - sf::Vector2f(GAME_WIDTH / 2.1, GAME_HEIGHT / 2.1) - sf::Vector2f(2,2));
+	healthbar.setPosition(playerSprite.getPosition()-sf::Vector2f(GAME_WIDTH/2.1 , GAME_HEIGHT/2.1));
+	health.setString("100 HP");
+	health.setPosition(healthbar.getPosition()+sf::Vector2f(2,2));
 	resManager->window.setView(cameraView);
 	playerSprite.move(resManager->dx, resManager->dy);
+	isOnSprite(&playerSprite, &swordSprite);
 	
 }
 
@@ -154,4 +192,22 @@ void InputSystem::update()
 void InputSystem::tearDown()
 {
 
+}
+
+DataSystem::DataSystem(ResourceManager* rm)
+{
+	resManager = rm;
+};
+
+void DataSystem::init()
+{
+
+}
+
+void DataSystem::update()
+{
+}
+
+void DataSystem::tearDown()
+{
 }

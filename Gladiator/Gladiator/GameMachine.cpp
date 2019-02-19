@@ -7,6 +7,7 @@ GameMachine::GameMachine(ResourceManager* rm)
 	serverSys = new ServerSystem(rm);
 	inputSys = new InputSystem(rm);
 	renderSys = new RenderSystem(rm);
+	dataSys = new DataSystem(rm);
 
 	current = new WelcomeScreenState(this);
 };
@@ -33,4 +34,5 @@ void GameMachine::updateSystems() {
 	serverSys->update();
 	inputSys->update();
 	renderSys->update();
+	dataSys->update();
 }

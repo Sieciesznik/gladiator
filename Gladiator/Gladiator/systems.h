@@ -43,8 +43,11 @@ class RenderSystem : public System
 public:
 
 	sf::View cameraView;
-	sf::Texture playerTexture, mapTexture;
-	sf::Sprite playerSprite, mapSprite;
+	sf::Texture playerTexture, mapTexture, swordTexture;
+	sf::Sprite playerSprite, mapSprite, swordSprite;
+	sf::RectangleShape healthbar, healthbarBackground;
+	sf::Text health;
+	sf::Font font;
 
 	RenderSystem(ResourceManager* rm);
 	void init();
@@ -63,6 +66,19 @@ public:
 	sf::Event event;
 
 	InputSystem(ResourceManager* rm);
+	void init();
+	void update();
+	void tearDown();
+};
+
+
+class DataSystem : public System
+{
+public:
+
+	int hp;
+
+	DataSystem(ResourceManager* rm);
 	void init();
 	void update();
 	void tearDown();

@@ -13,6 +13,7 @@ public:
 	class ResourceManager* resManager;
 	class ServerSystem* serverSys;
 	class RenderSystem* renderSys;
+	class DataSystem* dataSys;
 	class InputSystem* inputSys;
 	GameMachine(ResourceManager* resManager);
 	
