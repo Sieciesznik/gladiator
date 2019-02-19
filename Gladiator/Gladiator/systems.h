@@ -5,8 +5,10 @@
 #include "easywsclient.hpp"
 #include <cassert>
 #include <WinSock2.h>
+#include "dataprotocol.h"
 
 using easywsclient::WebSocket;
+using json = nlohmann::json;
 
 class ResourceManager
 {

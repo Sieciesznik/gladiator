@@ -1,8 +1,5 @@
 #include <stdio.h>
 #include "gamemachine.h"
-#include <nlohmann/json.hpp>
-
-using json = nlohmann::json;
 
 
 void GameState::setToMenu() {

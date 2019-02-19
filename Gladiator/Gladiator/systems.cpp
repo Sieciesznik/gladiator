@@ -1,4 +1,6 @@
 #include "systems.h"
+#include <fstream>
+#include <sstream>
 
 const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000;
 
@@ -32,6 +34,20 @@ void ServerSystem::init()
 	}
 
 	client = WebSocket::from_url("ws://arena.ympek.net:8020");
+
+	std::ifstream protocolFile("arenaProtocol.json");
+
+	if (protocolFile)
+	{
+		std::stringstream buffer;
+
+		buffer << protocolFile.rdbuf();
+
+		protocolFile.close();
+
+
+	}
+
 }
 
 void ServerSystem::update()
