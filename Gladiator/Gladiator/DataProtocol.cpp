@@ -83,6 +83,9 @@ std::string MessageFieldString::getStringValue()
 MessageData::MessageData(uint8_t msgId, std::string msgName)
 	: messageId(msgId), messageName(msgName) {}
 
+MessageData::MessageData()
+	: messageId(0), messageName("") {}
+
 MessageData::~MessageData()
 {
 	for (std::map<std::string, MessageField *>::iterator it = parameters.begin(); it != parameters.end(); ++it)
@@ -123,20 +126,67 @@ std::string MessageData::getStringParameter(std::string key)
 
 ProtocolDecoder::ProtocolDecoder(){}
 
-void ProtocolDecoder::set(json* s2cMsgType)
+void ProtocolDecoder::set(json s2cMsgType, uint8_t size)
 {
 	this->serverToClientMessageTypes = s2cMsgType;
+	this->messageIdSize = size;
 }
 
-//MessageData ProtocolDecoder::decode(const char * byteBuffer)
-//{
-
-//}
-
-ProtocolEncoder::ProtocolEncoder()//json c2sMsgTypes)
+MessageData ProtocolDecoder::decode(const char * byteBuffer)
 {
-	//this->clientToServerMessageTypes = c2sMsgTypes;
+	uint8_t msgId = byteBuffer[0];
 
+	json messageRecipe =		this->serverToClientMessageTypes[msgId];
+	json messageParameters =	messageRecipe["messageParameters"];
+	MessageData newData(msgId, messageRecipe["messageName"]);
 
+	int byteDataIterator = 1;
+
+	for (int i = 0; i < messageParameters.size(); ++i)
+	{
+		if (messageParameters[i]["type"].dump() == "int")
+		{
+			int paramSize = (messageParameters[i]["size"].get<int>()) / 8;
+			int32_t newValue;
+
+			for (int j = 0; j < paramSize; ++j)
+			{
+				newValue |= ((int32_t)byteBuffer[byteDataIterator]) << ((paramSize - j - 1) * 8);
+			}
+
+			newData.addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
+			byteDataIterator += paramSize;
+		}
+		else if (messageParameters[i]["type"].dump() == "double")
+		{
+			int paramSize = (messageParameters[i]["size"].get<int>()) / 8;
+			double_t newValue = *((double_t *)&byteBuffer[byteDataIterator]);
+			
+			newData.addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
+			byteDataIterator += paramSize;
+		}
+		else if (messageParameters[i]["type"].dump() == "string")
+		{
+			int paramSize = (messageParameters[i]["size"].get<int>()) / 8;
+			std::string newValue;
+
+			for (int j = 0; j < paramSize; ++j)
+			{
+				newValue.append(&byteBuffer[j]);
+			}
+
+			newData.addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
+			byteDataIterator += paramSize;
+		}
+	}
+
+	return newData;
 }
 
+ProtocolEncoder::ProtocolEncoder(){}
+
+void ProtocolEncoder::set(json c2sMsgType, uint8_t size)
+{
+	this->clientToServerMessageTypes = c2sMsgType;
+	this->messageIdSize = size;
+}

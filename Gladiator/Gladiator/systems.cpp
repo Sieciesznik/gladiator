@@ -5,6 +5,7 @@
 const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000;
 
 ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Labyrinth game"), dx(0), dy(0) {}
+MessageData ResourceManager::lastMessage;
 
 //=========================================================
 //					Server System
@@ -16,9 +17,8 @@ static ProtocolEncoder encoder;
 
 static void handleMessage(const std::string & message)
 {
-	//decoder.decode(message.c_str());
+	ResourceManager::lastMessage = decoder.decode(message.c_str());
 	printf(">>> %s\n", message.c_str());
-	if (message == "world") { client->close(); }
 }
 
 ServerSystem::ServerSystem(ResourceManager* rm) 
@@ -50,10 +50,8 @@ void ServerSystem::init()
 
 
 		json protocol = json::parse(buffer);
-		std::cout << protocol["clientToServerMessage"]["messageTypes"][0];
-		json* s2cMsgTypes = new json();
-		s2cMsgTypes->array();
-		//decoder.set();
+		decoder.set(protocol["clientToServerMessage"]["messageTypes"], (uint8_t)protocol["messageIdSize"]);
+		encoder.set(protocol["serverToClientMessage"]["messageTypes"], (uint8_t)protocol["messageIdSize"]);
 	}
 
 }
@@ -85,7 +83,6 @@ RenderSystem::RenderSystem(ResourceManager* rm)
 
 void RenderSystem::init() 
 {
-	
 	if (!playerTexture.loadFromFile("Images/NoClass.png") || !mapTexture.loadFromFile("Images/floor.jpg") || !swordTexture.loadFromFile("Images/sword.png"))
 	{
 		LOG_ERROR("Can't load the file!");

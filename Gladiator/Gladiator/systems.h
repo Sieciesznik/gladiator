@@ -14,6 +14,7 @@ class ResourceManager
 {
 public:
 	sf::RenderWindow window;
+	static MessageData lastMessage;
 	float dx;
 	float dy;
 
