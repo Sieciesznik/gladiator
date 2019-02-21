@@ -161,35 +161,50 @@ MessageData* ProtocolDecoder::decode(const char * byteBuffer)
 		if (messageParameters[i]["type"].get<std::string>() == "int")
 		{
 			int paramSize = (messageParameters[i]["size"].get<int>()) / 8;
-			int32_t newValue;
+			int32_t newValue = 0;
 
-			for (int j = 0; j < paramSize; ++j)
-			{
-				newValue |= ((int32_t)byteBuffer[byteDataIterator]) << ((paramSize - j - 1) * 8);
+			if (paramSize == 1) {
+				newValue = byteBuffer[byteDataIterator];
+			}
+			else if (paramSize == 4) {
+				char tempChar[4];
+				for (int j = 0; j < 4; ++j) tempChar[3 - j] = byteBuffer[byteDataIterator + j];
+				memcpy(&newValue, tempChar, 4);
 			}
 
-			newData->addParameter(messageParameters[i]["type"].get<std::string>(), newValue);
+
+			//for (int j = 0; j < paramSize; ++j)
+			//{
+		//		newValue |= ((int32_t)byteBuffer[byteDataIterator]) << ((paramSize - j - 1) * 8);
+		//	}
+
+			newData->addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
 			byteDataIterator += paramSize;
 		}
 		else if (messageParameters[i]["type"].get<std::string>() == "double")
 		{
 			int paramSize = (messageParameters[i]["size"].get<int>()) / 8;
-			double_t newValue = *((double_t *)&byteBuffer[byteDataIterator]);
+			double_t newValue;// = *((double_t *)&byteBuffer[byteDataIterator]);
+
+			char tempChar[8];
+			for (int j = 0; j < 8; ++j) tempChar[7 - j] = byteBuffer[byteDataIterator + j];
+
+			memcpy(&newValue, tempChar, sizeof(double_t));
 			
-			newData->addParameter(messageParameters[i]["type"].get<std::string>(), newValue);
+			newData->addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
 			byteDataIterator += paramSize;
+
 		}
 		else if (messageParameters[i]["type"].get<std::string>() == "string")
 		{
 			int paramSize = (messageParameters[i]["size"].get<int>()) / 8;
+			
 			std::string newValue;
 
-			for (int j = 0; j < paramSize; ++j)
-			{
-				newValue.append(&byteBuffer[j]);
-			}
+			newValue.append(&byteBuffer[byteDataIterator], paramSize);
+			
 
-			newData->addParameter(messageParameters[i]["type"].get<std::string>(), newValue);
+			newData->addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
 			byteDataIterator += paramSize;
 		}
 	}
@@ -209,7 +224,6 @@ std::string ProtocolEncoder::encode(MessageData msgData)
 {
 	int messageSize = 1;
 	json messageRecipe = this->clientToServerMessageTypes[msgData.getMsgId()];
-	//std::cout << messageRecipe;
 	json messageParameters = messageRecipe["messageParameters"];
 
 	for (int i = 0; i < messageParameters.size(); ++i)
@@ -217,18 +231,13 @@ std::string ProtocolEncoder::encode(MessageData msgData)
 		messageSize += (messageParameters[i]["size"].get<int>()) / 8;
 	}
 
-	//char* newMsg = new char[messageSize];
 	std::string newMsg;
-	//newMsg.reserve(messageSize);
-	//for (int i = 0; i < messageSize; ++i) newMsg[i] = 0;
+
 	newMsg += msgData.getMsgId();
-	//newMsg.append(std::to_string(msgData.getMsgId()));
 	int byteDataIterator = 1;
 
 	for (int i = 0; i < messageParameters.size(); ++i)
 	{
-		//std::cout << messageParameters[i]["type"].get<std::string>();
-
 		int paramSize = messageParameters[i]["size"].get<int>() / 8;
 		if (messageParameters[i]["type"].get<std::string>() == "int")
 		{

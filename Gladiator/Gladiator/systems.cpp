@@ -18,7 +18,7 @@ static ProtocolEncoder encoder;
 
 static void handleMessage(const std::string & message)
 {
-	printf(">>> %d\n", message.c_str());
+	//printf(">>> %s\n", message.c_str());
 	ResourceManager::lastMessage = decoder.decode(message.c_str());
 }
 
