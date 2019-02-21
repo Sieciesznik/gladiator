@@ -5,7 +5,8 @@
 const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000;
 
 ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Labyrinth game"), dx(0), dy(0) {}
-MessageData ResourceManager::lastMessage;
+MessageData* ResourceManager::lastMessage = new MessageData();
+bool ResourceManager::readyToSend = false;
 
 //=========================================================
 //					Server System
@@ -17,8 +18,8 @@ static ProtocolEncoder encoder;
 
 static void handleMessage(const std::string & message)
 {
+	printf(">>> %d\n", message.c_str());
 	ResourceManager::lastMessage = decoder.decode(message.c_str());
-	printf(">>> %s\n", message.c_str());
 }
 
 ServerSystem::ServerSystem(ResourceManager* rm) 
@@ -50,8 +51,8 @@ void ServerSystem::init()
 
 
 		json protocol = json::parse(buffer);
-		decoder.set(protocol["clientToServerMessage"]["messageTypes"], (uint8_t)protocol["messageIdSize"]);
-		encoder.set(protocol["serverToClientMessage"]["messageTypes"], (uint8_t)protocol["messageIdSize"]);
+		decoder.set(protocol["serverToClientMessage"]["messageTypes"], (uint8_t)protocol["messageIdSize"]);
+		encoder.set(protocol["clientToServerMessage"]["messageTypes"], (uint8_t)protocol["messageIdSize"]); 
 	}
 
 }
@@ -64,7 +65,16 @@ void ServerSystem::update()
 	{
 		client->poll();
 		client->dispatch(handleMessage);
+		
+		if (ResourceManager::readyToSend)
+		{
+			std::string msgToSend = encoder.encode(*ResourceManager::lastMessage);
+			client->sendBinary(msgToSend);
+			
+			ResourceManager::readyToSend = false;
+		}
 	}
+
 }
 
 void ServerSystem::tearDown()

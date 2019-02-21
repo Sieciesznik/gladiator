@@ -63,12 +63,14 @@ public:
 	MessageData(uint8_t msgId, std::string messageName);
 	MessageData();
 	~MessageData();
+	void set(uint8_t msgId, std::string messageName);
 	void addParameter(std::string fieldName, int32_t fieldVal);
 	void addParameter(std::string fieldName, double_t fieldVal);
 	void addParameter(std::string fieldName, std::string fieldVal);
 	int32_t getIntParameter(std::string key);
 	double_t getDoubleParameter(std::string key);
 	std::string getStringParameter(std::string key);
+	uint8_t getMsgId();
 };
 
 
@@ -80,7 +82,7 @@ class ProtocolDecoder {
 public:
 	ProtocolDecoder();
 	void set(json s2cMsgType, uint8_t size);
-	MessageData decode(const char * byteBuffer);
+	MessageData* decode(const char * byteBuffer);
 };
 
 class ProtocolEncoder {
@@ -91,4 +93,5 @@ class ProtocolEncoder {
 public:
 	ProtocolEncoder();
 	void set(json c2sMsgType, uint8_t size);
+	std::string encode(MessageData msgData);
 };

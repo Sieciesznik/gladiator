@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "gamemachine.h"
+#include "systems.h"
 
 void WelcomeScreenState::setToGame() {
 
@@ -13,6 +14,14 @@ bool isSpriteClicked(sf::Sprite *spr, sf::RenderWindow *window)
 	if (spr->getGlobalBounds().contains(mousePosF))
 	{
 		LOG_INFO(1, "Clicked, yay!");
+
+		//MessageData loginReq(0, "loginReq");
+		//loginReq.addParameter("name", "Jacek");
+		//*ResourceManager::lastMessage = loginReq;
+		ResourceManager::lastMessage->set(0, "loginReq");
+		ResourceManager::lastMessage->addParameter("name", "Jacek");
+		ResourceManager::readyToSend = true;
+
 		return true;
 	}
 	else
