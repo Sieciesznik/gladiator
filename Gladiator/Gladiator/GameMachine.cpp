@@ -28,11 +28,12 @@ void GameMachine::run() {
 void GameMachine::initiateSystems() {
 	serverSys->init();
 	inputSys->init();
+	dataSys->init();
 	renderSys->init();
 }
 void GameMachine::updateSystems() {
 	serverSys->update();
 	inputSys->update();
-	renderSys->update();
 	dataSys->update();
+	renderSys->update();
 }

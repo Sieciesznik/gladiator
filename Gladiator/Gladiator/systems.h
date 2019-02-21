@@ -6,6 +6,7 @@
 #include <cassert>
 #include <WinSock2.h>
 #include "dataprotocol.h"
+#include <queue>
 
 using easywsclient::WebSocket;
 using json = nlohmann::json;
@@ -14,8 +15,8 @@ class ResourceManager
 {
 public:
 	sf::RenderWindow window;
-	static MessageData* lastMessage;
-	static bool readyToSend;
+	static std::queue<MessageData> messageInbox;
+	static std::queue<MessageData> messageSendbox;
 	float dx;
 	float dy;
 

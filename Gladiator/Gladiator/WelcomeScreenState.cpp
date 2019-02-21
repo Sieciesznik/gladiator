@@ -18,9 +18,12 @@ bool isSpriteClicked(sf::Sprite *spr, sf::RenderWindow *window)
 		//MessageData loginReq(0, "loginReq");
 		//loginReq.addParameter("name", "Jacek");
 		//*ResourceManager::lastMessage = loginReq;
-		ResourceManager::lastMessage->set(0, "loginReq");
-		ResourceManager::lastMessage->addParameter("name", "Jacek");
-		ResourceManager::readyToSend = true;
+		//ResourceManager::lastMessage->set(0, "loginReq");
+		//ResourceManager::lastMessage->addParameter("name", "Jacek");
+		//ResourceManager::readyToSend = true;
+
+		ResourceManager::messageSendbox.emplace(MessageData(0, "loginReq"));
+		ResourceManager::messageSendbox.back().addParameter("name", "Jacek");
 
 		return true;
 	}

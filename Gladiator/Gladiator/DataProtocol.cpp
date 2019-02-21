@@ -90,7 +90,7 @@ MessageData::~MessageData()
 {
 	for (std::map<std::string, MessageField *>::iterator it = parameters.begin(); it != parameters.end(); ++it)
 	{
-		delete it->second;
+		//delete it->second;
 	}
 }
 
@@ -146,13 +146,13 @@ void ProtocolDecoder::set(json s2cMsgType, uint8_t size)
 	this->messageIdSize = size;
 }
 
-MessageData* ProtocolDecoder::decode(const char * byteBuffer)
+MessageData ProtocolDecoder::decode(const char * byteBuffer)
 {
 	uint8_t msgId = byteBuffer[0];
 
 	json messageRecipe =		this->serverToClientMessageTypes[msgId];
 	json messageParameters =	messageRecipe["messageParameters"];
-	MessageData* newData = new MessageData(msgId, messageRecipe["messageName"]);
+	MessageData newData(msgId, messageRecipe["messageName"]); //= new MessageData(msgId, messageRecipe["messageName"]);
 
 	int byteDataIterator = 1;
 
@@ -178,7 +178,7 @@ MessageData* ProtocolDecoder::decode(const char * byteBuffer)
 		//		newValue |= ((int32_t)byteBuffer[byteDataIterator]) << ((paramSize - j - 1) * 8);
 		//	}
 
-			newData->addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
+			newData.addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
 			byteDataIterator += paramSize;
 		}
 		else if (messageParameters[i]["type"].get<std::string>() == "double")
@@ -191,7 +191,7 @@ MessageData* ProtocolDecoder::decode(const char * byteBuffer)
 
 			memcpy(&newValue, tempChar, sizeof(double_t));
 			
-			newData->addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
+			newData.addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
 			byteDataIterator += paramSize;
 
 		}
@@ -204,7 +204,7 @@ MessageData* ProtocolDecoder::decode(const char * byteBuffer)
 			newValue.append(&byteBuffer[byteDataIterator], paramSize);
 			
 
-			newData->addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
+			newData.addParameter(messageParameters[i]["name"].get<std::string>(), newValue);
 			byteDataIterator += paramSize;
 		}
 	}

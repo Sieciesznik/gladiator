@@ -5,8 +5,8 @@
 const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000;
 
 ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Labyrinth game"), dx(0), dy(0) {}
-MessageData* ResourceManager::lastMessage = new MessageData();
-bool ResourceManager::readyToSend = false;
+std::queue<MessageData> ResourceManager::messageInbox;
+std::queue<MessageData> ResourceManager::messageSendbox;
 
 //=========================================================
 //					Server System
@@ -18,8 +18,7 @@ static ProtocolEncoder encoder;
 
 static void handleMessage(const std::string & message)
 {
-	//printf(">>> %s\n", message.c_str());
-	ResourceManager::lastMessage = decoder.decode(message.c_str());
+	ResourceManager::messageInbox.push(decoder.decode(message.c_str()));
 }
 
 ServerSystem::ServerSystem(ResourceManager* rm) 
@@ -66,12 +65,12 @@ void ServerSystem::update()
 		client->poll();
 		client->dispatch(handleMessage);
 		
-		if (ResourceManager::readyToSend)
+		if (ResourceManager::messageSendbox.size() > 0)
 		{
-			std::string msgToSend = encoder.encode(*ResourceManager::lastMessage);
+			std::string msgToSend = encoder.encode(ResourceManager::messageSendbox.front());
 			client->sendBinary(msgToSend);
 			
-			ResourceManager::readyToSend = false;
+			ResourceManager::messageSendbox.pop();
 		}
 	}
 
@@ -183,7 +182,8 @@ void RenderSystem::updateHero()
 	health.setString("100 HP");
 	health.setPosition(healthbar.getPosition()+sf::Vector2f(2,2));
 	resManager->window.setView(cameraView);
-	playerSprite.move(resManager->dx, resManager->dy);
+	//playerSprite.move(resManager->dx, resManager->dy);
+	playerSprite.setPosition(resManager->dx, resManager->dy); // set to see if communication works
 	isOnSprite(&playerSprite, &swordSprite);
 	
 }
@@ -237,6 +237,40 @@ void DataSystem::init()
 
 void DataSystem::update()
 {
+	for (int i = 0; i < ResourceManager::messageInbox.size(); ++i) {
+		switch (ResourceManager::messageInbox.front().getMsgId())
+		{
+			case 0:
+			{
+
+			}
+				break;
+			case 1:
+			{
+
+			}
+				break;
+			case 2:
+			{
+				resManager->dx = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
+				resManager->dy = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
+			}
+				break;
+			case 3:
+			{
+
+			}
+			break;
+			case 4:
+			{
+
+			}
+				break;
+			default:
+				break;
+		}
+		ResourceManager::messageInbox.pop();
+	}
 }
 
 void DataSystem::tearDown()

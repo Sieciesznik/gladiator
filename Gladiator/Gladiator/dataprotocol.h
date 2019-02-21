@@ -82,7 +82,7 @@ class ProtocolDecoder {
 public:
 	ProtocolDecoder();
 	void set(json s2cMsgType, uint8_t size);
-	MessageData* decode(const char * byteBuffer);
+	MessageData decode(const char * byteBuffer);
 };
 
 class ProtocolEncoder {
