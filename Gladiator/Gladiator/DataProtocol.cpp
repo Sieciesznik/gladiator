@@ -119,12 +119,12 @@ void MessageData::addParameter(std::string fieldName, std::string fieldVal)
 
 int32_t MessageData::getIntParameter(std::string key)
 {
-	return parameters[key]->getIntValue();
+	return ((MessageFieldInt32*)parameters[key])->getIntValue();
 }
 
 double_t MessageData::getDoubleParameter(std::string key)
 {
-	return parameters[key]->getDoubleValue();
+	return ((MessageFieldDouble*)parameters[key])->getDoubleValue();
 }
 
 std::string MessageData::getStringParameter(std::string key)

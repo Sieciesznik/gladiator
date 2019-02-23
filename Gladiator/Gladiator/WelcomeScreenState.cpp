@@ -7,7 +7,7 @@ void WelcomeScreenState::setToGame() {
 	gameMachine->setCurrent(new GameState(this->gameMachine));
 }
 
-bool isSpriteClicked(sf::Sprite *spr, sf::RenderWindow *window)
+bool isSpriteClicked(sf::Sprite *spr, sf::RenderWindow *window, sf::String * nickName)
 {
 	sf::Vector2i mousePos = sf::Mouse::getPosition(*window);
 	sf::Vector2f mousePosF(static_cast<float>(mousePos.x), static_cast<float>(mousePos.y));
@@ -23,7 +23,7 @@ bool isSpriteClicked(sf::Sprite *spr, sf::RenderWindow *window)
 		//ResourceManager::readyToSend = true;
 
 		ResourceManager::messageSendbox.emplace(MessageData(0, "loginReq"));
-		ResourceManager::messageSendbox.back().addParameter("name", "Jacek");
+		ResourceManager::messageSendbox.back().addParameter("name", *nickName);
 
 		return true;
 	}
@@ -75,7 +75,7 @@ void WelcomeScreenState::run() {
 			}
 			if(event.type == sf::Event::MouseButtonPressed)
 			{
-				if (isSpriteClicked(&PlayButton, &gameMachine->resManager->window)) 
+				if (isSpriteClicked(&PlayButton, &gameMachine->resManager->window, &nickName)) 
 				{
 					nextState = 'p';
 					isRunning = false;

@@ -113,20 +113,19 @@ void RenderSystem::init()
 	mapSprite.setPosition(-GAME_WIDTH * 2,-GAME_WIDTH * 2);
 
 	playerSprite.setTexture(playerTexture);
-	playerSprite.setPosition(GAME_WIDTH/2, GAME_HEIGHT/2);
+	playerSprite.setPosition(resManager->dx, resManager->dy);
 	playerSprite.setOrigin(50, 50);
 
 	swordSprite.setTexture(swordTexture);
 	swordSprite.setPosition((GAME_WIDTH / 2)+30, (GAME_HEIGHT / 2)+30);
 	
-	cameraView.setCenter(playerSprite.getPosition());
 	cameraView.setSize(sf::Vector2f(GAME_WIDTH, GAME_HEIGHT));
 }
 
 void RenderSystem::update()
 {
-	lookAtMouse();
 	updateHero();
+	lookAtMouse();
 	resManager->window.clear();
 	resManager->window.draw(mapSprite);
 	resManager->window.draw(swordSprite);
@@ -176,6 +175,7 @@ void RenderSystem::lookAtMouse()
 
 void RenderSystem::updateHero()
 {
+	playerSprite.setPosition(resManager->dx, resManager->dy); // set to see if communication works
 	cameraView.setCenter(playerSprite.getPosition());
 	healthbarBackground.setPosition(playerSprite.getPosition() - sf::Vector2f(GAME_WIDTH / 2.1, GAME_HEIGHT / 2.1) - sf::Vector2f(2,2));
 	healthbar.setPosition(playerSprite.getPosition()-sf::Vector2f(GAME_WIDTH/2.1 , GAME_HEIGHT/2.1));
@@ -183,7 +183,6 @@ void RenderSystem::updateHero()
 	health.setPosition(healthbar.getPosition()+sf::Vector2f(2,2));
 	resManager->window.setView(cameraView);
 	//playerSprite.move(resManager->dx, resManager->dy);
-	playerSprite.setPosition(resManager->dx, resManager->dy); // set to see if communication works
 	isOnSprite(&playerSprite, &swordSprite);
 	
 }
@@ -211,6 +210,23 @@ void InputSystem::update()
 			exit(0);
 		}
 	}
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
+	{
+		//action here
+	}
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
+	{	//1 space 2 left 3 right
+		sf::Vector2f mousePos = resManager->window.mapPixelToCoords(sf::Mouse::getPosition(resManager->window));
+		ResourceManager::messageSendbox.emplace(MessageData(1, "actionInd"));
+		ResourceManager::messageSendbox.back().addParameter("inputId", 3);
+		ResourceManager::messageSendbox.back().addParameter("absMouseCoordX", mousePos.x);
+	    ResourceManager::messageSendbox.back().addParameter("absMouseCoordY", mousePos.y);
+	}
+	if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
+	{
+		//action here
+	}
+	/*
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) && !sf::Keyboard::isKeyPressed(sf::Keyboard::S)) resManager->dy = -10;
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) && !sf::Keyboard::isKeyPressed(sf::Keyboard::W)) resManager->dy = 10;
 	else resManager->dy = 0;
@@ -218,6 +234,7 @@ void InputSystem::update()
 	if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) && !sf::Keyboard::isKeyPressed(sf::Keyboard::D)) resManager->dx = -10;
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) resManager->dx = 10;
 	else resManager->dx = 0;
+	*/
 }
 
 void InputSystem::tearDown()
@@ -258,7 +275,8 @@ void DataSystem::update()
 				break;
 			case 3:
 			{
-
+				ResourceManager::messageInbox.front().getDoubleParameter("positionX");
+				ResourceManager::messageInbox.front().getDoubleParameter("positionY");
 			}
 			break;
 			case 4:
