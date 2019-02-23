@@ -232,7 +232,8 @@ std::string ProtocolEncoder::encode(MessageData msgData)
 	}
 
 	std::string newMsg;
-
+//	newMsg.resize(messageSize, '\0');
+	newMsg.reserve(messageSize);
 	newMsg += msgData.getMsgId();
 	int byteDataIterator = 1;
 
@@ -241,19 +242,23 @@ std::string ProtocolEncoder::encode(MessageData msgData)
 		int paramSize = messageParameters[i]["size"].get<int>() / 8;
 		if (messageParameters[i]["type"].get<std::string>() == "int")
 		{
-			int32_t tempInt = msgData.getIntParameter(messageParameters[i]["name"].dump());
+			int32_t tempInt = msgData.getIntParameter(messageParameters[i]["name"].get<std::string>());
 
 			for (int j = 0; j < paramSize; ++j)
 			{
-				newMsg[byteDataIterator + j] = (char)(tempInt >> (j * 8));
+				newMsg += (char)(tempInt >> (j * 8));
 			}
 			byteDataIterator += paramSize;
 		}
 		else if (messageParameters[i]["type"].get<std::string>() == "double")
 		{
-			double_t tempDouble = msgData.getDoubleParameter(messageParameters[i]["name"].dump());
+			double_t tempDouble = msgData.getDoubleParameter(messageParameters[i]["name"].get<std::string>());
 
-			memcpy(&newMsg[byteDataIterator], &tempDouble, sizeof(tempDouble));
+			char tempChar[8];
+
+			memcpy(tempChar, &tempDouble, sizeof(tempDouble));
+
+			for (int j = 0; j < 8; ++j) newMsg += tempChar[j];
 
 			byteDataIterator += paramSize;
 		}
