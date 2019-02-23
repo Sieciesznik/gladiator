@@ -4,6 +4,8 @@
 
 const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000;
 
+bool swordPicked = 0;
+
 ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Labyrinth game"), dx(0), dy(0) {}
 std::queue<MessageData> ResourceManager::messageInbox;
 std::queue<MessageData> ResourceManager::messageSendbox;
@@ -118,6 +120,7 @@ void RenderSystem::init()
 
 	swordSprite.setTexture(swordTexture);
 	swordSprite.setPosition((GAME_WIDTH / 2)+30, (GAME_HEIGHT / 2)+30);
+	swordSprite.setOrigin(84,84);
 	
 	cameraView.setSize(sf::Vector2f(GAME_WIDTH, GAME_HEIGHT));
 }
@@ -125,14 +128,21 @@ void RenderSystem::init()
 void RenderSystem::update()
 {
 	updateHero();
-	lookAtMouse();
+	lookAtMouse(&playerSprite);
+	if(swordPicked)lookAtMouse(&swordSprite);
 	resManager->window.clear();
 	resManager->window.draw(mapSprite);
-	resManager->window.draw(swordSprite);
+	if(!swordPicked) resManager->window.draw(swordSprite);
+	else
+	{
+		resManager->window.draw(playerSprite);
+		swordSprite.setPosition(playerSprite.getPosition()-sf::Vector2f(50,0));
+		resManager->window.draw(swordSprite);
+	}
 	resManager->window.draw(healthbarBackground);
 	resManager->window.draw(healthbar);
 	resManager->window.draw(health);
-	resManager->window.draw(playerSprite);
+	if (!swordPicked)resManager->window.draw(playerSprite);
 	resManager->window.display();
 }
 
@@ -156,9 +166,9 @@ bool isOnSprite(sf::Sprite *heroSprite, sf::Sprite *itemSprite)
 	}
 }
 
-void RenderSystem::lookAtMouse()
+void RenderSystem::lookAtMouse(sf::Sprite *sprite)
 {
-	sf::Vector2f spritePos = playerSprite.getPosition();
+	sf::Vector2f spritePos = sprite->getPosition();
 	sf::Vector2f mousePos = resManager->window.mapPixelToCoords(sf::Mouse::getPosition(resManager->window)) + sf::Vector2f(50, 50);
 
 	// now we have both the sprite position and the cursor
@@ -170,7 +180,7 @@ void RenderSystem::lookAtMouse()
 	float dy = spritePos.y - mousePos.y;
 
 	float rotation = (atan2(dy, dx)) * 180 / PI;
-	playerSprite.setRotation(rotation);
+	sprite->setRotation(rotation);
 }
 
 void RenderSystem::updateHero()
@@ -210,6 +220,13 @@ void InputSystem::update()
 			exit(0);
 		}
 	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::E))
+	{
+		if (isOnSprite)
+		{
+			swordPicked = 1;
+		}
+	}
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Left))
 	{
 		//action here
@@ -235,6 +252,7 @@ void InputSystem::update()
 	else if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) && !sf::Keyboard::isKeyPressed(sf::Keyboard::A)) resManager->dx = 10;
 	else resManager->dx = 0;
 	*/
+	
 }
 
 void InputSystem::tearDown()
@@ -275,8 +293,8 @@ void DataSystem::update()
 				break;
 			case 3:
 			{
-				ResourceManager::messageInbox.front().getDoubleParameter("positionX");
-				ResourceManager::messageInbox.front().getDoubleParameter("positionY");
+				//ResourceManager::messageInbox.front().getDoubleParameter("positionX");
+				//ResourceManager::messageInbox.front().getDoubleParameter("positionY");
 			}
 			break;
 			case 4:

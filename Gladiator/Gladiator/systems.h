@@ -60,7 +60,7 @@ public:
 	void tearDown();
 
 private:
-	void lookAtMouse();
+	void lookAtMouse(sf::Sprite*);
 	void updateHero();
 };
 
