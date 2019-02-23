@@ -258,7 +258,7 @@ std::string ProtocolEncoder::encode(MessageData msgData)
 
 			memcpy(tempChar, &tempDouble, sizeof(tempDouble));
 
-			for (int j = 0; j < 8; ++j) newMsg += tempChar[j];
+			for (int j = 0; j < 8; ++j) newMsg += tempChar[7 - j];
 
 			byteDataIterator += paramSize;
 		}
