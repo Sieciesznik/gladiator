@@ -7,6 +7,9 @@ const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000, NUM_OF_PLAYERS = 10;
 bool swordPicked = 0;
 int playerIds[NUM_OF_PLAYERS], health_value[NUM_OF_PLAYERS];
 float enemy_dx[NUM_OF_PLAYERS], enemy_dy[NUM_OF_PLAYERS];
+float enemy_target_dx[NUM_OF_PLAYERS], enemy_target_dy[NUM_OF_PLAYERS];
+float playerSpeed[NUM_OF_PLAYERS];
+bool playerGotUpdate[NUM_OF_PLAYERS];
 
 ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Labyrinth game"), dx(0), dy(0) {}
 std::queue<MessageData> ResourceManager::messageInbox;
@@ -120,6 +123,8 @@ void RenderSystem::init()
 		playerIds[i] = -1;
 		enemy_dx[i] = -1;
 		enemy_dy[i] = -1;
+		enemy_target_dx[i] = -1;
+		enemy_target_dy[i] = -1;
 		health_value[i] = -1;
 	}
 	mapTexture.setRepeated(true);
@@ -152,14 +157,32 @@ void RenderSystem::update()
 	resManager->window.draw(mapSprite);
 	resManager->window.draw(swordSprite);
 
-	std::cout << resManager->our_player_id << std::endl;
+	//std::cout << resManager->our_player_id << std::endl;
 
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
 		if (playerIds[i] != -1)
 		{
 			if (resManager->our_player_id == i)
-			{
+			{	
+				if (playerGotUpdate[i])
+				{
+					playerGotUpdate[i] = false;
+						std::cout << resManager->target_x << "|" << resManager->dx << std::endl;
+				}
+				else
+				{
+					float vectX = resManager->target_x - resManager->dx;
+					float vectY = resManager->target_y - resManager->dy;
+					if (vectX != 0 || vectY != 0)
+					{
+						double vectLen = sqrt(vectX*vectX + vectY * vectY);
+						vectX = (vectX / vectLen) * (playerSpeed[i] / 60);
+						vectY = (vectY / vectLen) * (playerSpeed[i] / 60);
+						resManager->dx += vectX;
+						resManager->dy += vectY;
+					}
+				}
 				playerSprite[i].setPosition(resManager->dx, resManager->dy); //ourPlayer
 			}
 			else
@@ -229,7 +252,7 @@ void RenderSystem::updateHero()
 {
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
-		std::cout << "PLAYER ID["<< i <<"] ="<< playerIds[i] << std::endl;
+		//std::cout << "PLAYER ID["<< i <<"] ="<< playerIds[i] << std::endl;
 	}
 
 	cameraView.setCenter(playerSprite[resManager->our_player_id].getPosition());
@@ -345,11 +368,15 @@ void DataSystem::update()
 				break;
 			case 2:
 			{
+				playerGotUpdate[ResourceManager::messageInbox.front().getIntParameter("objectId")] = true;
+				playerSpeed[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("objectSpeed");
 				if (resManager->our_player_id == ResourceManager::messageInbox.front().getIntParameter("objectId"))
 				{	//data for our player
 					resManager->health = ResourceManager::messageInbox.front().getIntParameter("health");
 					resManager->dx = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
 					resManager->dy = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
+					resManager->target_x = ResourceManager::messageInbox.front().getDoubleParameter("absTargetCoordX");
+					resManager->target_y = ResourceManager::messageInbox.front().getDoubleParameter("absTargetCoordY");
 				}
 				else
 				{
@@ -359,12 +386,14 @@ void DataSystem::update()
 					health_value[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getIntParameter("health");
 					enemy_dx[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
 					enemy_dy[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
+					enemy_target_dx[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absTargetCoordX");
+					enemy_target_dy[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absTargetCoordY");
 				}
 			}
 				break;
 			case 3:
 			{//Introd
-				int ID = ResourceManager::messageInbox.front().getDoubleParameter("objectId");
+				int ID = ResourceManager::messageInbox.front().getIntParameter("objectId");
 				playerIds[ID] = ID;
 			}
 			break;

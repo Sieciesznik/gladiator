@@ -17,8 +17,8 @@ public:
 	sf::RenderWindow window;
 	static std::queue<MessageData> messageInbox;
 	static std::queue<MessageData> messageSendbox;
-	float dx;
-	float dy;
+	float dx, target_x;
+	float dy, target_y;
 	int our_player_id, health;
 
 	ResourceManager();
