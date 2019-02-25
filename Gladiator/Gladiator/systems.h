@@ -49,7 +49,7 @@ class RenderSystem : public System
 public:
 
 	sf::View cameraView;
-	sf::Texture playerTexture, mapTexture, swordTexture;
+	sf::Texture playerTexture, mapTexture, swordTexture, angry, dead;
 	sf::Sprite playerSprite[10], mapSprite, swordSprite;
 	sf::RectangleShape healthbar[10], healthbarBackground[10];
 	sf::Text health;

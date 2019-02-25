@@ -105,7 +105,7 @@ void RenderSystem::init()
 {
 	resManager->health = 200;
 
-	if (!playerTexture.loadFromFile("Images/NoClass.png") || !mapTexture.loadFromFile("Images/floor.jpg") || !swordTexture.loadFromFile("Images/sword.png"))
+	if (!playerTexture.loadFromFile("Images/NoClass.png") || !mapTexture.loadFromFile("Images/floor.jpg") || !swordTexture.loadFromFile("Images/sword.png") || !angry.loadFromFile("Images/angry.png") || !dead.loadFromFile("Images/dead.png"))
 	{
 		LOG_ERROR("Can't load the file!");
 	}
@@ -129,7 +129,7 @@ void RenderSystem::init()
 
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
-		playerSprite[i].setTexture(playerTexture);
+		playerSprite[i].setTexture(angry);
 		if (resManager->our_player_id == i) {
 			playerSprite[i].setPosition(resManager->dx, resManager->dy);
 		}
@@ -144,7 +144,6 @@ void RenderSystem::init()
 
 void RenderSystem::update()
 {
-	
 	updateHero();
 	updateHealth();
 	lookAtMouse(&playerSprite[resManager->our_player_id]);
@@ -173,6 +172,12 @@ void RenderSystem::update()
 				healthbar[i].setSize(sf::Vector2f(health_value[i]/2, 10));
 				healthbar[i].setFillColor(sf::Color::Green);
 			}
+			if (health_value[i] == 200) playerSprite[i].setTexture(angry);
+			if(health_value[i] < 200) playerSprite[i].setTexture(playerTexture);
+			if(health_value[i] == 0) playerSprite[i].setTexture(dead);
+			if(resManager->health == 200) playerSprite[i].setTexture(angry);
+			if(resManager->health < 200) playerSprite[i].setTexture(playerTexture);
+			if(resManager->health == 0) playerSprite[i].setTexture(dead);
 			resManager->window.draw(playerSprite[i]);
 			resManager->window.draw(healthbarBackground[i]);
 			resManager->window.draw(healthbar[i]);
@@ -348,7 +353,9 @@ void DataSystem::update()
 				}
 				else
 				{
-					std::cout << "ENEMY_ID = " << ResourceManager::messageInbox.front().getIntParameter("objectId") << std::endl;
+					int ID = ResourceManager::messageInbox.front().getIntParameter("objectId");
+					//std::cout << "ENEMY_ID = " << ResourceManager::messageInbox.front().getIntParameter("objectId") << std::endl;
+					playerIds[ID] = ID;
 					health_value[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getIntParameter("health");
 					enemy_dx[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
 					enemy_dy[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
