@@ -2,11 +2,11 @@
 #include <fstream>
 #include <sstream>
 
-const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000, NUM_OF_PLAYERS = 4;
+const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000, NUM_OF_PLAYERS = 10;
 
 bool swordPicked = 0;
-int playerIds[4];
-float enemy_dx[4], enemy_dy[4];
+int playerIds[NUM_OF_PLAYERS], health_value[NUM_OF_PLAYERS];
+float enemy_dx[NUM_OF_PLAYERS], enemy_dy[NUM_OF_PLAYERS];
 
 ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Labyrinth game"), dx(0), dy(0) {}
 std::queue<MessageData> ResourceManager::messageInbox;
@@ -79,7 +79,14 @@ void ServerSystem::update()
 	}
 
 }
+void RenderSystem::updateHealth() {
 
+	healthbarBackground[resManager->our_player_id].setSize(sf::Vector2f(604, 54));
+	healthbarBackground[resManager->our_player_id].setFillColor(sf::Color::Black);
+	healthbar[resManager->our_player_id].setSize(sf::Vector2f(resManager->health * 3 , 50));
+	healthbar[resManager->our_player_id].setFillColor(sf::Color::Green);
+
+}
 void ServerSystem::tearDown()
 {
 	WSACleanup();
@@ -96,6 +103,8 @@ RenderSystem::RenderSystem(ResourceManager* rm)
 
 void RenderSystem::init() 
 {
+	resManager->health = 200;
+
 	if (!playerTexture.loadFromFile("Images/NoClass.png") || !mapTexture.loadFromFile("Images/floor.jpg") || !swordTexture.loadFromFile("Images/sword.png"))
 	{
 		LOG_ERROR("Can't load the file!");
@@ -103,7 +112,6 @@ void RenderSystem::init()
 	font.loadFromFile("arial.ttf");
 	health.setFont(font);
 	health.setStyle(sf::Text::Bold);
-	health.setString("100 HP");
 	health.setFillColor(sf::Color::Black);
 
 
@@ -112,13 +120,8 @@ void RenderSystem::init()
 		playerIds[i] = -1;
 		enemy_dx[i] = -1;
 		enemy_dy[i] = -1;
+		health_value[i] = -1;
 	}
-
-	healthbarBackground.setSize(sf::Vector2f(624, 54));
-	healthbarBackground.setFillColor(sf::Color::Black);
-	healthbar.setSize(sf::Vector2f(620, 50));
-	healthbar.setFillColor(sf::Color::Green);
-
 	mapTexture.setRepeated(true);
 	mapSprite.setTexture(mapTexture);
 	mapSprite.setTextureRect(sf::IntRect(0, 0, GAME_WIDTH*10, GAME_HEIGHT*10));
@@ -132,9 +135,6 @@ void RenderSystem::init()
 		}
 		playerSprite[i].setOrigin(50, 50);
 	}
-	//playerSprite.setTexture(playerTexture);
-	//playerSprite.setPosition(resManager->dx, resManager->dy);
-	//playerSprite.setOrigin(50, 50);
 	swordSprite.setTexture(swordTexture);
 	swordSprite.setPosition((GAME_WIDTH / 2)+30, (GAME_HEIGHT / 2)+30);
 	swordSprite.setOrigin(84,84);
@@ -146,6 +146,7 @@ void RenderSystem::update()
 {
 	
 	updateHero();
+	updateHealth();
 	lookAtMouse(&playerSprite[resManager->our_player_id]);
 	//lookAtMouse(&swordSprite);
 	resManager->window.clear();
@@ -156,27 +157,28 @@ void RenderSystem::update()
 
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
-		std::cout << "Loop number = " << i << std::endl;
 		if (playerIds[i] != -1)
 		{
-			std::cout << "WE ARE HERE 1" << std::endl;
 			if (resManager->our_player_id == i)
 			{
-				std::cout << "WE ARE HERE 2" << std::endl;
-				playerSprite[i].setPosition(resManager->dx, resManager->dy);
+				playerSprite[i].setPosition(resManager->dx, resManager->dy); //ourPlayer
 			}
 			else
 			{
-				playerSprite[i].setPosition(enemy_dx[i], enemy_dy[i]);
+				playerSprite[i].setPosition(enemy_dx[i], enemy_dy[i]); //enemy
+				healthbarBackground[i].setPosition(playerSprite[i].getPosition() - sf::Vector2f(50, 70));
+				healthbarBackground[i].setSize(sf::Vector2f(200/2, 10));
+				healthbarBackground[i].setFillColor(sf::Color::Red);
+				healthbar[i].setPosition(playerSprite[i].getPosition() - sf::Vector2f(50, 70));
+				healthbar[i].setSize(sf::Vector2f(health_value[i]/2, 10));
+				healthbar[i].setFillColor(sf::Color::Green);
 			}
-			std::cout << "WE ARE HERE 3" << std::endl;
 			resManager->window.draw(playerSprite[i]);
+			resManager->window.draw(healthbarBackground[i]);
+			resManager->window.draw(healthbar[i]);
 		}
 
 	}
-
-	resManager->window.draw(healthbarBackground);
-	resManager->window.draw(healthbar);
 	resManager->window.draw(health);
 	resManager->window.display();
 }
@@ -220,18 +222,16 @@ void RenderSystem::lookAtMouse(sf::Sprite *sprite)
 
 void RenderSystem::updateHero()
 {
-	/*for (int i = 0; i < NUM_OF_PLAYERS; i++)
+	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
 		std::cout << "PLAYER ID["<< i <<"] ="<< playerIds[i] << std::endl;
-	}*/
+	}
 
-	
-	
 	cameraView.setCenter(playerSprite[resManager->our_player_id].getPosition());
-	healthbarBackground.setPosition(playerSprite[resManager->our_player_id].getPosition() - sf::Vector2f(GAME_WIDTH / 2.1, GAME_HEIGHT / 2.1) - sf::Vector2f(2,2));
-	healthbar.setPosition(playerSprite[resManager->our_player_id].getPosition()-sf::Vector2f(GAME_WIDTH/2.1 , GAME_HEIGHT/2.1));
-	health.setString("100 HP");
-	health.setPosition(healthbar.getPosition()+sf::Vector2f(2,2));
+	healthbarBackground[resManager->our_player_id].setPosition(playerSprite[resManager->our_player_id].getPosition() - sf::Vector2f(GAME_WIDTH / 2.1, GAME_HEIGHT / 2.1) - sf::Vector2f(2,2));
+	healthbar[resManager->our_player_id].setPosition(playerSprite[resManager->our_player_id].getPosition()-sf::Vector2f(GAME_WIDTH/2.1 , GAME_HEIGHT/2.1));
+	health.setString(std::to_string(resManager->health)+" HP");
+	health.setPosition(healthbar[resManager->our_player_id].getPosition()+sf::Vector2f(2,2));
 	resManager->window.setView(cameraView);
 	//playerSprite.move(resManager->dx, resManager->dy);
 	//isOnSprite(&playerSprite[resManager->player_ID], &swordSprite);
@@ -281,6 +281,14 @@ void InputSystem::update()
 		ResourceManager::messageSendbox.back().addParameter("inputId", 3);
 		ResourceManager::messageSendbox.back().addParameter("absMouseCoordX", mousePos.x);
 	    ResourceManager::messageSendbox.back().addParameter("absMouseCoordY", mousePos.y);
+	}
+	if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+	{
+		sf::Vector2f mousePos = resManager->window.mapPixelToCoords(sf::Mouse::getPosition(resManager->window));
+		ResourceManager::messageSendbox.emplace(MessageData(1, "actionInd"));
+		ResourceManager::messageSendbox.back().addParameter("inputId", 1);
+		ResourceManager::messageSendbox.back().addParameter("absMouseCoordX", mousePos.x);
+		ResourceManager::messageSendbox.back().addParameter("absMouseCoordY", mousePos.y);
 	}
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Middle))
 	{
@@ -334,11 +342,14 @@ void DataSystem::update()
 			{
 				if (resManager->our_player_id == ResourceManager::messageInbox.front().getIntParameter("objectId"))
 				{	//data for our player
+					resManager->health = ResourceManager::messageInbox.front().getIntParameter("health");
 					resManager->dx = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
 					resManager->dy = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
 				}
 				else
 				{
+					std::cout << "ENEMY_ID = " << ResourceManager::messageInbox.front().getIntParameter("objectId") << std::endl;
+					health_value[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getIntParameter("health");
 					enemy_dx[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
 					enemy_dy[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
 				}

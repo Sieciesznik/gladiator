@@ -30,6 +30,7 @@ void GameMachine::initiateSystems() {
 	inputSys->init();
 	dataSys->init();
 	renderSys->init();
+	
 }
 void GameMachine::updateSystems() {
 	serverSys->update();

@@ -19,7 +19,7 @@ public:
 	static std::queue<MessageData> messageSendbox;
 	float dx;
 	float dy;
-	int our_player_id;
+	int our_player_id, health;
 
 	ResourceManager();
 };
@@ -50,8 +50,8 @@ public:
 
 	sf::View cameraView;
 	sf::Texture playerTexture, mapTexture, swordTexture;
-	sf::Sprite playerSprite[4], mapSprite, swordSprite;
-	sf::RectangleShape healthbar, healthbarBackground;
+	sf::Sprite playerSprite[10], mapSprite, swordSprite;
+	sf::RectangleShape healthbar[10], healthbarBackground[10];
 	sf::Text health;
 	sf::Font font;
 
@@ -63,6 +63,7 @@ public:
 private:
 	void lookAtMouse(sf::Sprite*);
 	void updateHero();
+	void updateHealth();
 };
 
 class InputSystem : public System
