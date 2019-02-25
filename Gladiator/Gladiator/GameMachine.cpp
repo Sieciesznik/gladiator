@@ -35,5 +35,8 @@ void GameMachine::updateSystems() {
 	serverSys->update();
 	inputSys->update();
 	dataSys->update();
-	renderSys->update();
+	if (resManager->our_player_id >= 0)
+	{
+		renderSys->update();
+	}
 }

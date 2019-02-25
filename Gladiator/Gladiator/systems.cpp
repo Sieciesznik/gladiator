@@ -2,9 +2,11 @@
 #include <fstream>
 #include <sstream>
 
-const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000;
+const int GAME_WIDTH = 1900, GAME_HEIGHT = 1000, NUM_OF_PLAYERS = 4;
 
 bool swordPicked = 0;
+int playerIds[4];
+float enemy_dx[4], enemy_dy[4];
 
 ResourceManager::ResourceManager() : window(sf::VideoMode(GAME_WIDTH, GAME_HEIGHT), "Labyrinth game"), dx(0), dy(0) {}
 std::queue<MessageData> ResourceManager::messageInbox;
@@ -104,6 +106,14 @@ void RenderSystem::init()
 	health.setString("100 HP");
 	health.setFillColor(sf::Color::Black);
 
+
+	for (int i = 0; i < NUM_OF_PLAYERS; i++)
+	{
+		playerIds[i] = -1;
+		enemy_dx[i] = -1;
+		enemy_dy[i] = -1;
+	}
+
 	healthbarBackground.setSize(sf::Vector2f(624, 54));
 	healthbarBackground.setFillColor(sf::Color::Black);
 	healthbar.setSize(sf::Vector2f(620, 50));
@@ -114,10 +124,17 @@ void RenderSystem::init()
 	mapSprite.setTextureRect(sf::IntRect(0, 0, GAME_WIDTH*10, GAME_HEIGHT*10));
 	mapSprite.setPosition(-GAME_WIDTH * 2,-GAME_WIDTH * 2);
 
-	playerSprite.setTexture(playerTexture);
-	playerSprite.setPosition(resManager->dx, resManager->dy);
-	playerSprite.setOrigin(50, 50);
-
+	for (int i = 0; i < NUM_OF_PLAYERS; i++)
+	{
+		playerSprite[i].setTexture(playerTexture);
+		if (resManager->our_player_id == i) {
+			playerSprite[i].setPosition(resManager->dx, resManager->dy);
+		}
+		playerSprite[i].setOrigin(50, 50);
+	}
+	//playerSprite.setTexture(playerTexture);
+	//playerSprite.setPosition(resManager->dx, resManager->dy);
+	//playerSprite.setOrigin(50, 50);
 	swordSprite.setTexture(swordTexture);
 	swordSprite.setPosition((GAME_WIDTH / 2)+30, (GAME_HEIGHT / 2)+30);
 	swordSprite.setOrigin(84,84);
@@ -127,22 +144,40 @@ void RenderSystem::init()
 
 void RenderSystem::update()
 {
+	
 	updateHero();
-	lookAtMouse(&playerSprite);
-	if(swordPicked)lookAtMouse(&swordSprite);
+	lookAtMouse(&playerSprite[resManager->our_player_id]);
+	//lookAtMouse(&swordSprite);
 	resManager->window.clear();
 	resManager->window.draw(mapSprite);
-	if(!swordPicked) resManager->window.draw(swordSprite);
-	else
+	resManager->window.draw(swordSprite);
+
+	std::cout << resManager->our_player_id << std::endl;
+
+	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
-		resManager->window.draw(playerSprite);
-		swordSprite.setPosition(playerSprite.getPosition()-sf::Vector2f(50,0));
-		resManager->window.draw(swordSprite);
+		std::cout << "Loop number = " << i << std::endl;
+		if (playerIds[i] != -1)
+		{
+			std::cout << "WE ARE HERE 1" << std::endl;
+			if (resManager->our_player_id == i)
+			{
+				std::cout << "WE ARE HERE 2" << std::endl;
+				playerSprite[i].setPosition(resManager->dx, resManager->dy);
+			}
+			else
+			{
+				playerSprite[i].setPosition(enemy_dx[i], enemy_dy[i]);
+			}
+			std::cout << "WE ARE HERE 3" << std::endl;
+			resManager->window.draw(playerSprite[i]);
+		}
+
 	}
+
 	resManager->window.draw(healthbarBackground);
 	resManager->window.draw(healthbar);
 	resManager->window.draw(health);
-	if (!swordPicked)resManager->window.draw(playerSprite);
 	resManager->window.display();
 }
 
@@ -185,15 +220,21 @@ void RenderSystem::lookAtMouse(sf::Sprite *sprite)
 
 void RenderSystem::updateHero()
 {
-	playerSprite.setPosition(resManager->dx, resManager->dy); // set to see if communication works
-	cameraView.setCenter(playerSprite.getPosition());
-	healthbarBackground.setPosition(playerSprite.getPosition() - sf::Vector2f(GAME_WIDTH / 2.1, GAME_HEIGHT / 2.1) - sf::Vector2f(2,2));
-	healthbar.setPosition(playerSprite.getPosition()-sf::Vector2f(GAME_WIDTH/2.1 , GAME_HEIGHT/2.1));
+	/*for (int i = 0; i < NUM_OF_PLAYERS; i++)
+	{
+		std::cout << "PLAYER ID["<< i <<"] ="<< playerIds[i] << std::endl;
+	}*/
+
+	
+	
+	cameraView.setCenter(playerSprite[resManager->our_player_id].getPosition());
+	healthbarBackground.setPosition(playerSprite[resManager->our_player_id].getPosition() - sf::Vector2f(GAME_WIDTH / 2.1, GAME_HEIGHT / 2.1) - sf::Vector2f(2,2));
+	healthbar.setPosition(playerSprite[resManager->our_player_id].getPosition()-sf::Vector2f(GAME_WIDTH/2.1 , GAME_HEIGHT/2.1));
 	health.setString("100 HP");
 	health.setPosition(healthbar.getPosition()+sf::Vector2f(2,2));
 	resManager->window.setView(cameraView);
 	//playerSprite.move(resManager->dx, resManager->dy);
-	isOnSprite(&playerSprite, &swordSprite);
+	//isOnSprite(&playerSprite[resManager->player_ID], &swordSprite);
 	
 }
 
@@ -233,7 +274,9 @@ void InputSystem::update()
 	}
 	if (sf::Mouse::isButtonPressed(sf::Mouse::Right))
 	{	//1 space 2 left 3 right
+
 		sf::Vector2f mousePos = resManager->window.mapPixelToCoords(sf::Mouse::getPosition(resManager->window));
+		//sf::Vector2i mousePos = sf::Mouse::getPosition(resManager->window);
 		ResourceManager::messageSendbox.emplace(MessageData(1, "actionInd"));
 		ResourceManager::messageSendbox.back().addParameter("inputId", 3);
 		ResourceManager::messageSendbox.back().addParameter("absMouseCoordX", mousePos.x);
@@ -277,7 +320,9 @@ void DataSystem::update()
 		{
 			case 0:
 			{
-
+				//loginAck
+				resManager->our_player_id = ResourceManager::messageInbox.front().getIntParameter("objectId");
+				playerIds[resManager->our_player_id] = resManager->our_player_id;
 			}
 				break;
 			case 1:
@@ -287,19 +332,27 @@ void DataSystem::update()
 				break;
 			case 2:
 			{
-				resManager->dx = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
-				resManager->dy = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
+				if (resManager->our_player_id == ResourceManager::messageInbox.front().getIntParameter("objectId"))
+				{	//data for our player
+					resManager->dx = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
+					resManager->dy = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
+				}
+				else
+				{
+					enemy_dx[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordX");
+					enemy_dy[ResourceManager::messageInbox.front().getIntParameter("objectId")] = ResourceManager::messageInbox.front().getDoubleParameter("absPositionCoordY");
+				}
 			}
 				break;
 			case 3:
-			{
-				//ResourceManager::messageInbox.front().getDoubleParameter("positionX");
-				//ResourceManager::messageInbox.front().getDoubleParameter("positionY");
+			{//Introd
+				int ID = ResourceManager::messageInbox.front().getDoubleParameter("objectId");
+				playerIds[ID] = ID;
 			}
 			break;
 			case 4:
-			{
-
+			{//logout
+				playerIds[ResourceManager::messageInbox.front().getIntParameter("objectId")] = -1;
 			}
 				break;
 			default:

@@ -19,6 +19,7 @@ public:
 	static std::queue<MessageData> messageSendbox;
 	float dx;
 	float dy;
+	int our_player_id;
 
 	ResourceManager();
 };
@@ -49,7 +50,7 @@ public:
 
 	sf::View cameraView;
 	sf::Texture playerTexture, mapTexture, swordTexture;
-	sf::Sprite playerSprite, mapSprite, swordSprite;
+	sf::Sprite playerSprite[4], mapSprite, swordSprite;
 	sf::RectangleShape healthbar, healthbarBackground;
 	sf::Text health;
 	sf::Font font;
@@ -82,6 +83,8 @@ class DataSystem : public System
 public:
 
 	int hp;
+	int playerId;
+
 
 	DataSystem(ResourceManager* rm);
 	void init();
