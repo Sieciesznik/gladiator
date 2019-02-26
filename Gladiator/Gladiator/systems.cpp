@@ -183,6 +183,9 @@ void RenderSystem::update()
 						resManager->dy += vectY;
 					}
 				}
+				if (resManager->health == 200) playerSprite[i].setTexture(angry);
+				if (resManager->health < 200) playerSprite[i].setTexture(playerTexture);
+				if (resManager->health == 0) playerSprite[i].setTexture(dead);
 				playerSprite[i].setPosition(resManager->dx, resManager->dy); //ourPlayer
 			}
 			else
@@ -194,13 +197,22 @@ void RenderSystem::update()
 				healthbar[i].setPosition(playerSprite[i].getPosition() - sf::Vector2f(50, 70));
 				healthbar[i].setSize(sf::Vector2f(health_value[i]/2, 10));
 				healthbar[i].setFillColor(sf::Color::Green);
+				if (health_value[i] == 200) 
+				{
+					std::cout<<"IM AT ANGRY for player "<<i<< std::endl;
+					playerSprite[i].setTexture(angry);
+				}
+				if (health_value[i] < 200)
+				{
+					std::cout << "IM AT SAD for player " << i << std::endl;
+					playerSprite[i].setTexture(playerTexture);
+				}
+				if (health_value[i] == 0)
+				{
+					std::cout << "IM AT DEAD for player " << i << std::endl;
+					playerSprite[i].setTexture(dead);
+				}
 			}
-			if (health_value[i] == 200) playerSprite[i].setTexture(angry);
-			if(health_value[i] < 200) playerSprite[i].setTexture(playerTexture);
-			if(health_value[i] == 0) playerSprite[i].setTexture(dead);
-			if(resManager->health == 200) playerSprite[i].setTexture(angry);
-			if(resManager->health < 200) playerSprite[i].setTexture(playerTexture);
-			if(resManager->health == 0) playerSprite[i].setTexture(dead);
 			resManager->window.draw(playerSprite[i]);
 			resManager->window.draw(healthbarBackground[i]);
 			resManager->window.draw(healthbar[i]);
@@ -252,7 +264,8 @@ void RenderSystem::updateHero()
 {
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
-		//std::cout << "PLAYER ID["<< i <<"] ="<< playerIds[i] << std::endl;
+		if(i==NUM_OF_PLAYERS-1) std::cout << "MY HEALTH = " << resManager->health << std::endl;
+		std::cout << "ENEMY HEALTH["<< i <<"] ="<< health_value[i] << std::endl;
 	}
 
 	cameraView.setCenter(playerSprite[resManager->our_player_id].getPosition());
