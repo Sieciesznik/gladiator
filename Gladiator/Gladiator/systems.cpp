@@ -168,7 +168,7 @@ void RenderSystem::update()
 				if (playerGotUpdate[i])
 				{
 					playerGotUpdate[i] = false;
-						std::cout << resManager->target_x << "|" << resManager->dx << std::endl;
+						//std::cout << resManager->target_x << "|" << resManager->dx << std::endl;
 				}
 				else
 				{
@@ -199,17 +199,17 @@ void RenderSystem::update()
 				healthbar[i].setFillColor(sf::Color::Green);
 				if (health_value[i] == 200) 
 				{
-					std::cout<<"IM AT ANGRY for player "<<i<< std::endl;
+					//std::cout<<"IM AT ANGRY for player "<<i<< std::endl;
 					playerSprite[i].setTexture(angry);
 				}
 				if (health_value[i] < 200)
 				{
-					std::cout << "IM AT SAD for player " << i << std::endl;
+					//std::cout << "IM AT SAD for player " << i << std::endl;
 					playerSprite[i].setTexture(playerTexture);
 				}
 				if (health_value[i] == 0)
 				{
-					std::cout << "IM AT DEAD for player " << i << std::endl;
+					//std::cout << "IM AT DEAD for player " << i << std::endl;
 					playerSprite[i].setTexture(dead);
 				}
 			}
@@ -261,13 +261,13 @@ void RenderSystem::lookAtMouse(sf::Sprite *sprite)
 }
 
 void RenderSystem::updateHero()
-{
+{/*
 	for (int i = 0; i < NUM_OF_PLAYERS; i++)
 	{
 		if(i==NUM_OF_PLAYERS-1) std::cout << "MY HEALTH = " << resManager->health << std::endl;
 		std::cout << "ENEMY HEALTH["<< i <<"] ="<< health_value[i] << std::endl;
 	}
-
+	*/
 	cameraView.setCenter(playerSprite[resManager->our_player_id].getPosition());
 	healthbarBackground[resManager->our_player_id].setPosition(playerSprite[resManager->our_player_id].getPosition() - sf::Vector2f(GAME_WIDTH / 2.1, GAME_HEIGHT / 2.1) - sf::Vector2f(2,2));
 	healthbar[resManager->our_player_id].setPosition(playerSprite[resManager->our_player_id].getPosition()-sf::Vector2f(GAME_WIDTH/2.1 , GAME_HEIGHT/2.1));
